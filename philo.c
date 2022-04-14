@@ -10,12 +10,18 @@ long get_time()
     return(res);
 }
 
-void *execute_thread()
+void *execute_thread(void *arg)
 {
+    t_philo	*philo;
 
+	philo = (t_philo *)arg;
+    sleep(2);
+    printf("executing thread %d", philo->death_time);
+
+    return (NULL);
 }    
 
-int init_philo (char **argv , t_args *args)
+int init_args(char **argv , t_args *args)
 {
     // args = malloc (sizeof (t_philo_args) * num + 1); 
     // init_philo(args, num); 
@@ -55,6 +61,7 @@ void create_philo_threads(t_args *args)
         pthread_create(&threads[i], NULL, execute_thread, (void *)&args->philos[i]);
         i++;
     }
+    args->thread_ids = threads;
 }
 
 void init_fork_mutex(t_args *args)
@@ -79,7 +86,7 @@ void init_philo(t_args *args)
     i = 0 ;
 
     args->philos = malloc (sizeof ( t_philo) * args->num_philo);
-    while (i < args->philos)
+    while (i < args->num_philo)
     {
         args->philos[i].num_philo = args->num_philo;
         args->philos[i].eat_time = args->eat_time;
@@ -91,10 +98,21 @@ void init_philo(t_args *args)
     }
 }
 
+void wait_for_threads(t_args *arg)
+{
+    int i;
+
+    i = 0;
+    while (i < arg->num_philo)
+    {
+        pthread_join(arg->thread_ids[i], NULL);
+        i++;
+    }
+}
+
 int main (int argc, char **argv)
 {
     t_args args;
-    
     /*
     TODO   :
     *arg 1 :number_of_philosophers 
@@ -104,12 +122,13 @@ int main (int argc, char **argv)
     *arg 5 :[number_of_times_each_philosopher_must_eat]
     */
 
-   	if (argc < 5 || argc > 6 || init_philo(argv, &args))
+   	if (argc < 5 || argc > 6 || init_args(argv, &args))
 		return (0);
     init_fork_mutex(&args);
-    init_philo(argv, &args);
+    init_philo(&args);
     create_philo_threads(&args);
-    
+    wait_for_threads(&args);
+
     print_number(args.num_philo, "num_philo"); 
     print_number(args.death_time, "death_time"); 
     print_number(args.eat_time, "eat_time");

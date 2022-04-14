@@ -25,7 +25,7 @@ typedef struct s_args
     int death_time;
     int sleep_time;
     int num_to_eat;
-   
+    pthread_t *thread_ids;
     pthread_mutex_t *forks;
     t_philo *philos;
 }              t_args;

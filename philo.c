@@ -10,14 +10,24 @@ long get_time()
     return(res);
 }
 
+void take_fork()
+{
+    
+}
+
 void *execute_thread(void *arg)
 {
     t_philo	*philo;
 
 	philo = (t_philo *)arg;
-    sleep(2);
-    printf("executing thread %d", philo->death_time);
 
+    while (1)
+    {
+        take_fork();
+        eat();
+        sleep();
+        think();
+    }
     return (NULL);
 }    
 
@@ -53,7 +63,6 @@ void create_philo_threads(t_args *args)
     int i;
 
     i = 0;
-
     pthread_t *threads;
     threads = malloc (sizeof (pthread_t) * (args->num_philo));
     while (i < args->num_philo)
@@ -94,6 +103,8 @@ void init_philo(t_args *args)
         args->philos[i].sleep_time = args->sleep_time;
         args->philos[i].num_to_eat = args->num_to_eat;
         args->philos[i].last_meal_time = get_time();
+        args->philos[i].l_fork = &args->forks[i];
+        args->philos[i].r_fork = &args->forks[(i + 1) % args->num_philo];
         i++;
     }
 }

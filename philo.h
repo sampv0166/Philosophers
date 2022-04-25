@@ -15,6 +15,8 @@ typedef struct s_philo
     int sleep_time;
     int num_to_eat;
     int last_meal_time;
+    pthread_mutex_t *l_fork;
+    pthread_mutex_t *r_fork;
 }               t_philo;
 
 

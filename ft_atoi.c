@@ -1,27 +1,20 @@
 #include "philo.h"
 
-int	ft_atoi(const char *str)
+int	ft_atoi(const char *str, size_t *num)
 {
-	size_t	i;
-	size_t	s;
-	size_t	res;
-	
+	int	i;
+
+
 	i = 0;
-	s = 1;
-	res = 0;
-	while (str[i] == ' ' || str[i] == '\n' || str[i] == '\t' || \
-			str[i] == '\v' || str[i] == '\f' || str[i] == '\r')
-		i++;
-	if (str[i] == '-' || str[i] == '+')
+	if (str[i] == '\0')
+		return (1);
+	*num = 0;
+	while (str[i] && str[i] >= '0' && str[i] <= '9')
 	{
-		if (str[i] == '-')
-			s = -1;
+		*num = *num * 10 + (str[i] - '0');
 		i++;
 	}
-	while (str[i] >= '0' && str[i] <= '9')
-	{
-		res = (res * 10) + (str[i] - '0');
-		i++;
-	}
-	return (res * s);
+	if (str[i] != '\0')
+		return (1);
+	return (0);
 }

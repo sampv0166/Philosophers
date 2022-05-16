@@ -1,115 +1,86 @@
 #include "philo.h"
 
-long get_time()
+int	start(t_args *args)
 {
-    struct timeval tv;
-    long res;
+	size_t		i;
+	pthread_t	tid;
 
-    gettimeofday(&tv, NULL);
-    res = 1000 * (size_t)tv.tv_sec + (size_t)tv.tv_usec / 1000;
-    return(res);
+	i = 0;
+	pthread_mutex_lock(&args->die_mutex);
+	while (i < args->num_philo)
+	{
+		if (pthread_create(&tid, NULL, &routine,
+				(void *)&args->philos[i]))
+			return (ft_log(PTHREAD_ERROR));
+		pthread_detach(tid);
+		if (args->num_philo % 2)
+			ft_usleep(500);
+		i++;
+	}
+	return (0);
+}
+
+int	init_mutexes(t_args *args)
+{
+	size_t	i;
+
+	args->forks_mutexes = malloc(sizeof(pthread_mutex_t)
+			* args->num_philo);
+	if (!args->forks_mutexes)
+		return (ft_log(MALLOC_ERROR));
+	i = 0;
+	while (i < args->num_philo)
+	{
+		pthread_mutex_init(&args->forks_mutexes[i], NULL);
+		i++;
+	}
+	pthread_mutex_init(&args->wr_mutex, NULL);
+	pthread_mutex_init(&args->die_mutex, NULL);
+	return (0);
+}
+
+int init_args(t_args *args, int argc, char **argv)
+{
+	if (argc > 6)
+		return (ft_err(TOO_MANY_ARGUMENTS));
+	if (argc < 5)
+		return (ft_err(NOT_ENOUGH_ARGUMENTS));
+	if (ft_atoi(argv[1], &args->num_philo) || args->num_philo == 0
+		|| ft_atoi(argv[2], &args->death_time) || args->death_time == 0
+		|| ft_atoi(argv[3], &args->eat_time) || args->eat_time == 0
+		|| ft_atoi(argv[4], &args->sleep_time) || args->sleep_time == 0)
+		return (ft_err(WRONG_ARGUMENT));
+	if (argc == 6 && (ft_atoi(argv[5], &args->num_to_eat)
+			|| args->num_to_eat == 0))
+		return (ft_err(WRONG_ARGUMENT));
+	else if (argc == 5)
+		args->num_to_eat= -1;
+	args->finished = 0;
+	return (0);
 }
 
 
-
-
-void take_fork()
+int init_philos(t_args *args)
 {
-    
-}
+	size_t	i;
 
-void *execute_thread(void *arg)
-{
-    t_philo	*philo;
-
-	philo = (t_philo *)arg;
-
-    while (1)
-    {
-        take_fork();
-        eat();
-        sleep();
-        think();
-    }
-    return (NULL);
-}    
-
-int init_args(char **argv , t_args *args)
-{
-    // args = malloc (sizeof (t_philo_args) * num + 1); 
-    // init_philo(args, num); 
-
-    int i;
-
-    i = 0 ;
-    while (argv[i])
-    {
-        if (ft_atoi(argv[i]) < 0)
-            return (1);
-        i++;
-    }
-    args->num_philo =ft_atoi(argv[1]);
-    args->death_time = ft_atoi(argv[2]);
-    args->eat_time = ft_atoi(argv[3]);
-    args->sleep_time = ft_atoi(argv[4]);
-    args->num_to_eat = ft_atoi(argv[5]);
-    return (0);
-}
-
-void print_number(int i, char *str)
-{
-    printf("\n%s = %d\n", str, i);
-}
-
-void create_philo_threads(t_args *args)
-{
-    int i;
-
-    i = 0;
-    pthread_t *threads;
-    threads = malloc (sizeof (pthread_t) * (args->num_philo));
-    while (i < args->num_philo)
-    {
-        pthread_create(&threads[i], NULL, execute_thread, (void *)&args->philos[i]);
-        i++;
-    }
-    args->thread_ids = threads;
-}
-
-void init_fork_mutex(t_args *args)
-{
-    int i;
-    pthread_mutex_t *fork_mutex;
-
-    i = 0;
-    fork_mutex = malloc(sizeof(pthread_mutex_t) * (args->num_philo));
-    while (i < args->num_philo)
-    {
-       pthread_mutex_init(&fork_mutex[i], NULL);
-        i++;
-    }
-    args->forks = fork_mutex;   
-}
-
-void init_philo(t_args *args)
-{
-    int i;
-
-    i = 0 ;
-
-    args->philos = malloc (sizeof ( t_philo) * args->num_philo);
-    while (i < args->num_philo)
-    {
-        args->philos[i].num_philo = args->num_philo;
-        args->philos[i].eat_time = args->eat_time;
-        args->philos[i].death_time = args->death_time;
-        args->philos[i].sleep_time = args->sleep_time;
-        args->philos[i].num_to_eat = args->num_to_eat;
-        args->philos[i].last_meal_time = get_time();
-        args->philos[i].l_fork = &args->forks[i];
-        args->philos[i].r_fork = &args->forks[(i + 1) % args->num_philo];
-        i++;
-    }
+	args->philos = malloc(sizeof(t_philo) * args->num_philo);
+	args->forks = malloc(sizeof(int) * args->num_philo);
+	if (!args->philos || !args->forks)
+		return (ft_log(MALLOC_ERROR));
+	i = 0;
+	while (i < args->num_philo)
+	{
+		args->forks[i] = 0;
+		args->philos[i].pos = i;
+		args->philos[i].l_frk = i;
+		args->philos[i].r_frk = (i + 1) % args->num_philo;
+		args->philos[i].num_of_meals = 0;
+		args->philos[i].eating = 0;
+		args->philos[i].args = args;
+		i++;
+	}
+	return (0);
 }
 
 void wait_for_threads(t_args *arg)
@@ -135,18 +106,23 @@ int main (int argc, char **argv)
     *arg 4 :time_to_sleep
     *arg 5 :[number_of_times_each_philosopher_must_eat]
     */
+   	// if (argc < 5 || argc > 6 || init_args(argv, &args))
+	// 	return (0);
+    if(init_args(&args, argc, argv)
+		|| init_philos(&args)
+		|| init_mutexes(&args))
+        return (1);
+	if (start(&args))
+		return (1);
+    // init_fork_mutex(&args);
+    // init_philo(&args);
+    // create_philo_threads(&args);
+    // wait_for_threads(&args);
 
-   	if (argc < 5 || argc > 6 || init_args(argv, &args))
-		return (0);
-    init_fork_mutex(&args);
-    init_philo(&args);
-    create_philo_threads(&args);
-    wait_for_threads(&args);
-
-    print_number(args.num_philo, "num_philo"); 
-    print_number(args.death_time, "death_time"); 
-    print_number(args.eat_time, "eat_time");
-    print_number(args.sleep_time, "sleep_time");
-    print_number(args.num_to_eat, "num_of_times_should_eat");
+    // print_number(args.num_philo, "num_philo"); 
+    // print_number(args.death_time, "death_time"); 
+    // print_number(args.eat_time, "eat_time");
+    // print_number(args.sleep_time, "sleep_time");
+    // print_number(args.num_to_eat, "num_of_times_should_eat");
 
 }

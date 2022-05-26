@@ -6,15 +6,12 @@ int	start(t_args *args)
 	pthread_t	tid;
 
 	i = 0;
-	pthread_mutex_lock(&args->die_mutex);
+	// pthread_mutex_lock(&args->die_mutex);
 	while (i < args->num_philo)
 	{
 		if (pthread_create(&tid, NULL, &routine,
 				(void *)&args->philos[i]))
 			return (ft_log(PTHREAD_ERROR));
-		pthread_detach(tid);
-		if (args->num_philo % 2)
-			ft_usleep(500);
 		i++;
 	}
 	return (0);
@@ -83,37 +80,39 @@ int init_philos(t_args *args)
 	return (0);
 }
 
-void wait_for_threads(t_args *arg)
-{
-    int i;
+// void wait_for_threads(t_args *arg)
+// {
+//     int i;
 
-    i = 0;
-    while (i < arg->num_philo)
-    {
-        pthread_join(arg->thread_ids[i], NULL);
-        i++;
-    }
-}
-
-int main (int argc, char **argv)
-{
-    t_args args;
-    /*
+//     i = 0;
+//     while (i < arg->num_philo)
+//     {
+//         pthread_join(arg->thread_ids[i], NULL);
+//         i++;
+//     }
+// }
+/*
     TODO   :
     *arg 1 :number_of_philosophers 
     *arg 2 :time_to_die 
     *arg 3 :time_to_eat
     *arg 4 :time_to_sleep
     *arg 5 :[number_of_times_each_philosopher_must_eat]
-    */
-   	// if (argc < 5 || argc > 6 || init_args(argv, &args))
-	// 	return (0);
-    if(init_args(&args, argc, argv)
+*/
+
+int	main (int argc, char **argv)
+{
+	t_args	args;
+
+	if (init_args(&args, argc, argv)
 		|| init_philos(&args)
 		|| init_mutexes(&args))
-        return (1);
+		return (1);
 	if (start(&args))
 		return (1);
+}
+
+
     // init_fork_mutex(&args);
     // init_philo(&args);
     // create_philo_threads(&args);
@@ -124,5 +123,3 @@ int main (int argc, char **argv)
     // print_number(args.eat_time, "eat_time");
     // print_number(args.sleep_time, "sleep_time");
     // print_number(args.num_to_eat, "num_of_times_should_eat");
-
-}

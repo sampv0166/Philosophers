@@ -111,8 +111,6 @@ int	main (int argc, char **argv)
 	if (start(&args))
 		return (1);
 }
-
-
     // init_fork_mutex(&args);
     // init_philo(&args);
     // create_philo_threads(&args);

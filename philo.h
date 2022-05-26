@@ -13,8 +13,6 @@
 # define PTHREAD_ERROR -4
 # define NOT_ENOUGH_ARGUMENTS -5
 
-
-
 typedef struct s_args
 {
 	size_t			num_philo;
@@ -40,6 +38,8 @@ typedef struct s_philo
 	size_t		lst_meal;
 	size_t		max;
 	t_args		*args;
+	size_t		max_time;
+	t_args		philo_args;
 }				t_philo;
 
 int	ft_isdigit(int val);

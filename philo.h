@@ -13,7 +13,17 @@
 # define PTHREAD_ERROR -4
 # define NOT_ENOUGH_ARGUMENTS -5
 
+struct	s_philo;
 
+typedef enum e_action
+{
+	TAKING_FORK,
+	EATING,
+	SLEEPING,
+	THINKING,
+	DIED,
+	OVER,
+}				t_action;
 
 typedef struct s_args
 {
@@ -27,7 +37,8 @@ typedef struct s_args
 	pthread_mutex_t	*forks_mutexes;
 	pthread_mutex_t	wr_mutex;
 	pthread_mutex_t	die_mutex;
-	t_philo			*philos;
+	struct s_philo	*philos;
+	pthread_t 		*tids;
 }					t_args;
 
 typedef struct s_philo
@@ -39,11 +50,17 @@ typedef struct s_philo
 	size_t		eating;
 	size_t		lst_meal;
 	size_t		max;
+	size_t		max_time;
 	t_args		*args;
+	t_args		philo_args;
 }				t_philo;
 
-int	ft_isdigit(int val);
-int	ft_atoi(const char *str, size_t *num);
-int	ft_err(int	error);
-
+int		ft_isdigit(int val);
+int		ft_atoi(const char *str, size_t *num);
+int		ft_err(int	error);
+void	*routine(void *philo_t);
+void	ft_msg(t_philo *philo, size_t timestamp, int action);
+int	ft_log(int	error);
+size_t	get_time(void);
+void	ft_usleep(size_t ms);
 #endif

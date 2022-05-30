@@ -3,14 +3,11 @@
 int	start(t_args *args)
 {
 	size_t		i;
-	pthread_t	tid;
 
 	i = 0;
-	// pthread_mutex_lock(&args->die_mutex);
 	while (i < args->num_philo)
 	{
-		if (pthread_create(&tid, NULL, &routine,
-				(void *)&args->philos[i]))
+		if (pthread_create(&args->tids[i] , NULL, &routine,(void *)&args->philos[i]))
 			return (ft_log(PTHREAD_ERROR));
 		i++;
 	}
@@ -32,7 +29,6 @@ int	init_mutexes(t_args *args)
 		i++;
 	}
 	pthread_mutex_init(&args->wr_mutex, NULL);
-	pthread_mutex_init(&args->die_mutex, NULL);
 	return (0);
 }
 
@@ -56,14 +52,14 @@ int init_args(t_args *args, int argc, char **argv)
 	return (0);
 }
 
-
 int init_philos(t_args *args)
 {
 	size_t	i;
 
 	args->philos = malloc(sizeof(t_philo) * args->num_philo);
 	args->forks = malloc(sizeof(int) * args->num_philo);
-	if (!args->philos || !args->forks)
+	args->tids = malloc(sizeof(pthread_t) * args->num_philo);
+	if (!args->philos || !args->forks || !args->tids)
 		return (ft_log(MALLOC_ERROR));
 	i = 0;
 	while (i < args->num_philo)
@@ -80,17 +76,6 @@ int init_philos(t_args *args)
 	return (0);
 }
 
-// void wait_for_threads(t_args *arg)
-// {
-//     int i;
-
-//     i = 0;
-//     while (i < arg->num_philo)
-//     {
-//         pthread_join(arg->thread_ids[i], NULL);
-//         i++;
-//     }
-// }
 /*
     TODO   :
     *arg 1 :number_of_philosophers 
@@ -100,16 +85,42 @@ int init_philos(t_args *args)
     *arg 5 :[number_of_times_each_philosopher_must_eat]
 */
 
+int	waitChildThreads_and_destoryMutex(t_args *args)
+{
+	size_t i;
+
+	i = 0;
+	while (i < args->num_philo)
+	{
+		pthread_mutex_destroy(&args->forks_mutexes[i]);
+		i++;
+	}
+	pthread_mutex_destroy(&args->wr_mutex);
+	free(args->forks_mutexes);
+	free(args->philos);
+	free(args->forks);
+	free(args->tids);
+	return (0);
+}
+
 int	main (int argc, char **argv)
 {
 	t_args	args;
 
-	if (init_args(&args, argc, argv)
-		|| init_philos(&args)
-		|| init_mutexes(&args))
+	if (init_args(&args, argc, argv) || init_philos(&args) || init_mutexes(&args))
 		return (1);
-	if (start(&args))
-		return (1);
+	start(&args);
+	size_t	i;
+
+	i = 0;
+	while (i < args.num_philo)
+	{
+		//usleep(500);
+		pthread_join(args.tids[i], NULL);
+		i++;
+	}
+	waitChildThreads_and_destoryMutex(&args);
+	return (0);
 }
 
 

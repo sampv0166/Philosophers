@@ -49,6 +49,7 @@ int init_args(t_args *args, int argc, char **argv)
 	else if (argc == 5)
 		args->num_to_eat= -1;
 	args->finished = 0;
+	args->dead  = 0;
 	return (0);
 }
 
@@ -111,6 +112,12 @@ int	main (int argc, char **argv)
 		return (1);
 	start(&args);
 	size_t	i;
+
+	i = 0;
+	while (i < args.num_philo)
+	{
+		
+	}
 
 	i = 0;
 	while (i < args.num_philo)

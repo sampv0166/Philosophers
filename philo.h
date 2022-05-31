@@ -39,6 +39,7 @@ typedef struct s_args
 	pthread_mutex_t	die_mutex;
 	struct s_philo	*philos;
 	pthread_t 		*tids;
+	int				dead;
 }					t_args;
 
 typedef struct s_philo
@@ -53,6 +54,7 @@ typedef struct s_philo
 	size_t		max_time;
 	t_args		*args;
 	t_args		philo_args;
+	int			dead_philo;
 }				t_philo;
 
 int		ft_isdigit(int val);

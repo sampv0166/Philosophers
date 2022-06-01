@@ -14,5 +14,5 @@ void	ft_usleep(size_t ms)
 
 	end = get_time() + ms;
 	while (get_time() <= end)
-		 usleep(ms);
+		 usleep(ms / 1000);
 }

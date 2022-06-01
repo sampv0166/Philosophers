@@ -88,14 +88,14 @@ int init_philos(t_args *args)
 
 int	waitChildThreads_and_destoryMutex(t_args *args)
 {
-	size_t i;
+	// size_t i;
 
-	i = 0;
-	while (i < args->num_philo)
-	{
-		pthread_mutex_destroy(&args->forks_mutexes[i]);
-		i++;
-	}
+	// i = 0;
+	// while (i < args->num_philo)
+	// {
+	// 	pthread_mutex_destroy(&args->forks_mutexes[i]);
+	// 	i++;
+	// }
 	pthread_mutex_destroy(&args->wr_mutex);
 	free(args->forks_mutexes);
 	free(args->philos);
@@ -104,6 +104,27 @@ int	waitChildThreads_and_destoryMutex(t_args *args)
 	return (0);
 }
 
+void monitor (t_args *args)
+{
+	size_t	i;
+	
+	i = 0;
+	while (1)
+	{
+		i = 0;
+		while (i < args->num_philo)
+		{
+			if (args->dead)
+			{
+				ft_msg(&args->philos[i], get_time() - args->philos[i].lst_meal, DIED);
+				return ;
+			}
+			if (args->finished == args->num_philo)
+				return ;
+			i++;
+		}
+	}
+}
 int	main (int argc, char **argv)
 {
 	t_args	args;
@@ -113,24 +134,12 @@ int	main (int argc, char **argv)
 	start(&args);
 	size_t	i;
 
-	i = 0;
-	while (1)
-	{
-		i = 0;
-		while (i < args.num_philo)
-		{
-			if (get_time() - args.philos[i].lst_meal > args.death_time)
-			{
-				ft_msg(&args.philos[i], get_time(), DIED);
-			}
-			i++;
-		}
-	}
+	monitor(&args);
 	i = 0;
 	while (i < args.num_philo)
 	{
-		//usleep(500);
 		pthread_join(args.tids[i], NULL);
+		pthread_mutex_destroy(&args.forks_mutexes[i]);
 		i++;
 	}
 	waitChildThreads_and_destoryMutex(&args);

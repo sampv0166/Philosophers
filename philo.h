@@ -40,6 +40,7 @@ typedef struct s_args
 	struct s_philo	*philos;
 	pthread_t 		*tids;
 	int				dead;
+	int				num_meals_fnished;
 }					t_args;
 
 typedef struct s_philo

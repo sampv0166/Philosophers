@@ -114,11 +114,18 @@ int	main (int argc, char **argv)
 	size_t	i;
 
 	i = 0;
-	while (i < args.num_philo)
+	while (1)
 	{
-		
+		i = 0;
+		while (i < args.num_philo)
+		{
+			if (get_time() - args.philos[i].lst_meal > args.death_time)
+			{
+				ft_msg(&args.philos[i], get_time(), DIED);
+			}
+			i++;
+		}
 	}
-
 	i = 0;
 	while (i < args.num_philo)
 	{

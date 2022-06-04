@@ -1,6 +1,6 @@
 #include "philo.h"
 
-size_t	get_time(void)
+long long int	get_time(void)
 {
 	static struct timeval	tv;
 
@@ -8,11 +8,13 @@ size_t	get_time(void)
 	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }
 
-void	ft_usleep(size_t ms)
+void	ft_usleep(long long int ms)
 {
-	size_t	end;
+	long long int	end;
 
 	end = get_time() + ms;
 	while (get_time() <= end)
-		 usleep(ms / 1000);
+	{
+		usleep(ms/ 1000);
+	}
 }

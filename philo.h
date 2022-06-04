@@ -27,11 +27,11 @@ typedef enum e_action
 
 typedef struct s_args
 {
-	size_t			num_philo;
-	size_t			eat_time;
-	size_t			death_time;
-	size_t			sleep_time;
-	size_t			num_to_eat;
+	long long int			num_philo;
+	long long int			eat_time;
+	long long int			death_time;
+	long long int			sleep_time;
+	long long int			num_to_eat;
 	size_t			finished;
 	int				*forks;
 	pthread_mutex_t	*forks_mutexes;
@@ -41,6 +41,8 @@ typedef struct s_args
 	pthread_t 		*tids;
 	int				dead;
 	int				num_meals_fnished;
+	int				philo_pos;
+	long long int			time;
 }					t_args;
 
 typedef struct s_philo
@@ -50,20 +52,21 @@ typedef struct s_philo
 	size_t		r_frk;
 	size_t		num_of_meals;
 	size_t		eating;
-	size_t		lst_meal;
-	size_t		max;
-	size_t		max_time;
+	long long int	lst_meal;
+	long long int		max;
+	long long int		max_time;
 	t_args		*args;
 	t_args		philo_args;
 	int			dead_philo;
+	int			thinking;
 }				t_philo;
 
 int		ft_isdigit(int val);
-int		ft_atoi(const char *str, size_t *num);
+int		ft_atoi(const char *str, long long int *num);
 int		ft_err(int	error);
 void	*routine(void *philo_t);
-void	ft_msg(t_philo *philo, size_t timestamp, int action);
-int	ft_log(int	error);
-size_t	get_time(void);
-void	ft_usleep(size_t ms);
+void	ft_msg(t_philo *philo, int action);
+int		ft_log(int	error);
+long long int	get_time(void);
+void	ft_usleep(long long int ms);
 #endif

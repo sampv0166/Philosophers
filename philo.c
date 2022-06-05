@@ -78,8 +78,10 @@ int init_philos(t_args *args)
 		args->philos[i].args = args;
 		args->philos[i].thinking = 0;
 		args->philos->lst_meal = 0;
+		args->forks[i] = 0;
 		i++;
 	}
+	
 	return (0);
 }
 

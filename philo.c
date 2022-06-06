@@ -79,6 +79,7 @@ int init_philos(t_args *args)
 		args->philos[i].thinking = 0;
 		args->philos->lst_meal = 0;
 		args->forks[i] = 0;
+		args->philos[i].just_ate = 0;
 		i++;
 	}
 	
@@ -115,7 +116,7 @@ void monitor (t_args *args)
 		while (i < args->num_philo)
 		{
 			if (get_time() - args->philos[i].lst_meal > args->death_time)
-			{
+			{				
 				//printf("\n%lld >  %lld\n", (get_time() - args->philos[i].lst_meal),args->death_time);
 				pthread_mutex_lock(&args->wr_mutex);
 				args->dead = 1;

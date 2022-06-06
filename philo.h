@@ -59,6 +59,7 @@ typedef struct s_philo
 	t_args		philo_args;
 	int			dead_philo;
 	int			thinking;
+	int 		just_ate;
 }				t_philo;
 
 int		ft_isdigit(int val);

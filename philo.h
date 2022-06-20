@@ -37,6 +37,8 @@ typedef struct s_args
 	pthread_mutex_t	*forks_mutexes;
 	pthread_mutex_t	wr_mutex;
 	pthread_mutex_t	die_mutex;
+	pthread_mutex_t	ls_meal_mutex;
+	pthread_mutex_t	eating_mutex;
 	struct s_philo	*philos;
 	pthread_t 		*tids;
 	int				dead;

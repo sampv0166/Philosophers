@@ -4,7 +4,7 @@ SRCS = philo.c ft_isdigit.c ft_atoi.c ft_err.c print_msg.c routine.c time_utils.
 
 OBJS = ${SRCS:.c=.o}
 
-CC = gcc
+CC = gcc -ggdb
 
 CFLAGS = -Wall -Werror -Wextra -pthread
 

@@ -32,6 +32,9 @@ int	init_mutexes(t_args *args)
 		i++;
 	}
 	pthread_mutex_init(&args->wr_mutex, NULL);
+	pthread_mutex_init(&args->die_mutex, NULL);
+	pthread_mutex_init(&args->ls_meal_mutex, NULL);
+	pthread_mutex_init(&args->eating_mutex, NULL);
 	return (0);
 }
 
@@ -97,6 +100,7 @@ int init_philos(t_args *args)
 
 int	waitChildThreads_and_destoryMutex(t_args *args)
 {
+//	pthread_mutex_unlock(&args->die_mutex);
 	pthread_mutex_destroy(&args->wr_mutex);
 	free(args->forks_mutexes);
 	free(args->philos);
@@ -108,19 +112,30 @@ int	waitChildThreads_and_destoryMutex(t_args *args)
 void monitor (t_args *args)
 {
 	long long int	i;
+	long long int 	time_left;
 	i = 0;
+	int eating;
+
 //	printf("\nargs.lastmeall = %lld\n", args->philos[0].lst_meal);
 	while (1)
 	{
 		i = 0;
 		while (i < args->num_philo)
 		{
-			if (get_time() - args->philos[i].lst_meal > args->death_time)
-			{				
+			eating = 0;
+			pthread_mutex_lock(&args->ls_meal_mutex);
+			time_left =args->philos[i].lst_meal;
+			pthread_mutex_unlock(&args->ls_meal_mutex);
+			pthread_mutex_lock(&args->eating_mutex);
+			eating =args->philos[i].eating;
+			pthread_mutex_unlock(&args->eating_mutex);
+			if (get_time() - time_left > args->death_time && !eating)
+			{	
 				//printf("\n%lld >  %lld\n", (get_time() - args->philos[i].lst_meal),args->death_time);
-				pthread_mutex_lock(&args->wr_mutex);
-				args->dead = 1;
-				printf("%lld - philo %ld dies 💀\n",args->time - get_time(), args->philos[i].pos);
+				//pthread_mutex_lock(&args->wr_mutex);
+				//args->dead = 1;
+				//printf("%lld - philo %ld dies 💀\n",args->time - get_time(), args->philos[i].pos);
+				ft_msg(&args->philos[i], DIED);
 				pthread_mutex_unlock(&args->wr_mutex);
 				return ;
 			}
@@ -145,7 +160,6 @@ int	main (int argc, char **argv)
 	while (i < args.num_philo)
 	{
 		pthread_join(args.tids[i], NULL);
-		pthread_mutex_destroy(&args.forks_mutexes[i]);
 		i++;
 	}
 	waitChildThreads_and_destoryMutex(&args);

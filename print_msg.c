@@ -31,5 +31,13 @@ void	ft_msg(t_philo *philo, int action)
 		printf("%lld - philo %ld is thinking 💭\n", philo->args->time - get_time(), philo->pos);
 	else if (action == OVER)
 		printf("%lld - philo %ld has finished his meals 🤢\n", philo->args->time - get_time(), philo->pos);
+	else if (action == DIED)
+	{
+		pthread_mutex_lock(&philo->args->die_mutex);
+		philo->args->dead = 1;
+		pthread_mutex_unlock(&philo->args->die_mutex);
+		printf("%lld - philo %ld died 💀\n",philo->args->time - get_time(),philo->pos);
+		return ;
+	}
 	pthread_mutex_unlock(&philo->args->wr_mutex);
 }

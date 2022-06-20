@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   time_utils.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dfurneau <dfurneau@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/20 11:53:33 by dfurneau          #+#    #+#             */
+/*   Updated: 2022/06/20 11:53:37 by dfurneau         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 long long int	get_time(void)
@@ -10,11 +22,9 @@ long long int	get_time(void)
 
 void	ft_usleep(long long int ms)
 {
-	long long int	end;
+	long long int	times;
 
-	end = get_time() + ms;
-	while (get_time() <= end)
-	{
-		usleep(50);
-	}
+	times = get_time();
+	while (get_time() - times < ms)
+		usleep(100);
 }

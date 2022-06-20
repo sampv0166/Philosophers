@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: apila-va <apila-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/20 12:35:41 by apila-va          #+#    #+#             */
-/*   Updated: 2022/06/20 12:35:46 by apila-va         ###   ########.fr       */
+/*   Created: 2022/06/20 12:44:09 by apila-va          #+#    #+#             */
+/*   Updated: 2022/06/20 13:53:34 by apila-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 int	ft_atoi(const char *str, long long int *num)
 {
 	int	i;
-
 
 	i = 0;
 	if (str[i] == '\0')

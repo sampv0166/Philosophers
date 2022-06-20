@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   print_msg.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: apila-va <apila-va@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/20 13:47:21 by apila-va          #+#    #+#             */
+/*   Updated: 2022/06/20 16:24:11 by apila-va         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
-int	ft_log(int	error)
+int	ft_log(int error)
 {
 	if (error == WRONG_ARGUMENT)
 		printf("Error: Wrong argument.\n");
@@ -13,6 +25,20 @@ int	ft_log(int	error)
 	return (1);
 }
 
+void	set_philo_died(t_philo *philo)
+{
+	pthread_mutex_lock(&philo->args->die_mutex);
+	philo->args->dead = 1;
+	pthread_mutex_unlock(&philo->args->die_mutex);
+	printf("%lld - philo %ld died 💀\n", \
+	philo->args->time - get_time(), philo->pos);
+}
+
+void	print_msg(t_philo *philo, char *msg)
+{
+	printf("%lld  %ld %s\n", philo->args->time - get_time(), philo->pos, msg);
+}
+
 void	ft_msg(t_philo *philo, int action)
 {
 	pthread_mutex_lock(&philo->args->wr_mutex);
@@ -22,21 +48,18 @@ void	ft_msg(t_philo *philo, int action)
 		return ;
 	}
 	if (action == TAKING_FORK)
-		printf("%lld - philo %ld has taken a fork 🍽\n", philo->args->time - get_time(), philo->pos);
+		print_msg(philo, "has taken a fork 🍽");
 	else if (action == EATING)
-		printf("%lld - philo %ld is eating 🍕\n", philo->args->time - get_time() , philo->pos);
+		print_msg(philo, "is eating 🍕");
 	else if (action == SLEEPING)
-		printf("%lld - philo %ld is sleeping 💤\n", philo->args->time - get_time(), philo->pos);
+		print_msg(philo, "is sleeping 💤");
 	else if (action == THINKING)
-		printf("%lld - philo %ld is thinking 💭\n", philo->args->time - get_time(), philo->pos);
+		print_msg(philo, "is thinking 💭");
 	else if (action == OVER)
-		printf("%lld - philo %ld has finished his meals 🤢\n", philo->args->time - get_time(), philo->pos);
+		print_msg(philo, "has finished his meals 🤢");
 	else if (action == DIED)
 	{
-		pthread_mutex_lock(&philo->args->die_mutex);
-		philo->args->dead = 1;
-		pthread_mutex_unlock(&philo->args->die_mutex);
-		printf("%lld - philo %ld died 💀\n",philo->args->time - get_time(),philo->pos);
+		set_philo_died(philo);
 		return ;
 	}
 	pthread_mutex_unlock(&philo->args->wr_mutex);

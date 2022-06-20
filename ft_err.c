@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_err.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: apila-va <apila-va@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/20 13:46:42 by apila-va          #+#    #+#             */
+/*   Updated: 2022/06/20 13:54:09 by apila-va         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
-int	ft_err(int	error)
+int	ft_err(int error)
 {
 	if (error == NOT_ENOUGH_ARGUMENTS)
 		printf("Error: Not Enough argumens.\n");

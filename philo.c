@@ -1,21 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: apila-va <apila-va@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/20 13:47:02 by apila-va          #+#    #+#             */
+/*   Updated: 2022/06/21 15:28:01 by apila-va         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
-
-int	start(t_args *args)
-{
-	long long int		i;
-
-	i = 0;
-	args->time = get_time();
-	while (i < args->num_philo)
-	{
-		args->philos[i].lst_meal = get_time();
-		
-		if (pthread_create(&args->tids[i] , NULL, &routine,(void *)&args->philos[i]))
-			return (ft_log(PTHREAD_ERROR));
-		i++;
-	}
-	return (0);
-}
 
 int	init_mutexes(t_args *args)
 {
@@ -38,29 +33,34 @@ int	init_mutexes(t_args *args)
 	return (0);
 }
 
-int init_args(t_args *args, int argc, char **argv)
+int	init_args(t_args *args, int argc, char **argv)
 {
 	if (argc > 6)
 		return (ft_err(TOO_MANY_ARGUMENTS));
 	if (argc < 5)
 		return (ft_err(NOT_ENOUGH_ARGUMENTS));
-	if (ft_atoi(argv[1], &args->num_philo) || args->num_philo == 0
-		|| ft_atoi(argv[2], &args->death_time) || args->death_time == 0
-		|| ft_atoi(argv[3], &args->eat_time) || args->eat_time == 0
-		|| ft_atoi(argv[4], &args->sleep_time) || args->sleep_time == 0)
+	args->num_philo = ft_atoi(argv[1]);
+	args->death_time = ft_atoi(argv[2]);
+	args->eat_time = ft_atoi(argv[3]);
+	args->sleep_time = ft_atoi(argv[4]);
+	if (args->num_philo <= 0 || args->death_time <= 0 || args->eat_time <= 0\
+		 || args->sleep_time <= 0)
 		return (ft_err(WRONG_ARGUMENT));
-	if (argc == 6 && (ft_atoi(argv[5], &args->num_to_eat)
-			|| args->num_to_eat == 0))
-		return (ft_err(WRONG_ARGUMENT));
+	if (argc == 6)
+	{
+		args->num_to_eat = ft_atoi(argv[5]);
+		if (args->num_to_eat <= 0)
+			return (ft_err(WRONG_ARGUMENT));
+	}
 	else if (argc == 5)
-		args->num_to_eat= -1;
+		args->num_to_eat = -1;
 	args->finished = 0;
-	args->dead  = 0;
+	args->dead = 0;
 	args->philo_pos = 0;
 	return (0);
 }
 
-int init_philos(t_args *args)
+int	init_philos(t_args *args)
 {
 	long long int	i;
 
@@ -85,7 +85,6 @@ int init_philos(t_args *args)
 		args->philos[i].just_ate = 0;
 		i++;
 	}
-	
 	return (0);
 }
 
@@ -98,43 +97,25 @@ int init_philos(t_args *args)
     *arg 5 :[number_of_times_each_philosopher_must_eat]
 */
 
-int	waitChildThreads_and_destoryMutex(t_args *args)
-{
-//	pthread_mutex_unlock(&args->die_mutex);
-	pthread_mutex_destroy(&args->wr_mutex);
-	free(args->forks_mutexes);
-	free(args->philos);
-	free(args->forks);
-	free(args->tids);
-	return (0);
-}
-
-void monitor (t_args *args)
+void	monitor(t_args *args)
 {
 	long long int	i;
-	long long int 	time_left;
-	i = 0;
-	int eating;
+	long long int	time_left;
+	int				eating;
 
-//	printf("\nargs.lastmeall = %lld\n", args->philos[0].lst_meal);
 	while (1)
 	{
 		i = 0;
 		while (i < args->num_philo)
 		{
-			eating = 0;
 			pthread_mutex_lock(&args->ls_meal_mutex);
-			time_left =args->philos[i].lst_meal;
+			time_left = args->philos[i].lst_meal;
 			pthread_mutex_unlock(&args->ls_meal_mutex);
 			pthread_mutex_lock(&args->eating_mutex);
-			eating =args->philos[i].eating;
+			eating = args->philos[i].eating;
 			pthread_mutex_unlock(&args->eating_mutex);
 			if (get_time() - time_left > args->death_time && !eating)
 			{	
-				//printf("\n%lld >  %lld\n", (get_time() - args->philos[i].lst_meal),args->death_time);
-				//pthread_mutex_lock(&args->wr_mutex);
-				//args->dead = 1;
-				//printf("%lld - philo %ld dies 💀\n",args->time - get_time(), args->philos[i].pos);
 				ft_msg(&args->philos[i], DIED);
 				pthread_mutex_unlock(&args->wr_mutex);
 				return ;
@@ -162,19 +143,6 @@ int	main (int argc, char **argv)
 		pthread_join(args.tids[i], NULL);
 		i++;
 	}
-	waitChildThreads_and_destoryMutex(&args);
+	waitchildthreads_and_destorymutex(&args);
 	return (0);
 }
-<<<<<<< HEAD
-    // init_fork_mutex(&args);
-    // init_philo(&args);
-    // create_philo_threads(&args);
-    // wait_for_threads(&args);
-
-    // print_number(args.num_philo, "num_philo"); 
-    // print_number(args.death_time, "death_time"); 
-    // print_number(args.eat_time, "eat_time");
-    // print_number(args.sleep_time, "sleep_time");
-    // print_number(args.num_to_eat, "num_of_times_should_eat");
-=======
->>>>>>> 118e95f9ef8e4c3f590272ef6f7b0f7f7a56a4d6

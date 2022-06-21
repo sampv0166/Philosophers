@@ -6,7 +6,7 @@
 /*   By: apila-va <apila-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:47:31 by apila-va          #+#    #+#             */
-/*   Updated: 2022/06/21 18:39:00 by apila-va         ###   ########.fr       */
+/*   Updated: 2022/06/21 18:55:55 by apila-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,24 +171,39 @@ int	even_philos_taking_fork(t_philo *philo)
 				pthread_mutex_unlock(&philo->args->die_mutex);
 			}
 			return (1);
-		}
-		return (0);		
+		}	
 	}
-
+	return (0);
 }
 
 int	take_forks(t_philo *philo)
 {
+	int i;
+	
+	i = 0;
 	if (philo->pos % 2 == 0)
 		return (even_philos_taking_fork(philo));
 	else
 	{
-		pthread_mutex_lock(&philo->args->forks_mutexes[philo->r_frk]);
-		ft_msg(philo, TAKING_FORK);
-		philo->args->forks[philo->r_frk] = 1;
-		pthread_mutex_lock(&philo->args->forks_mutexes[philo->l_frk]);
-		ft_msg(philo, TAKING_FORK);
-		philo->args->forks[philo->l_frk] = 1;
+		while (i < 2)
+		{
+			pthread_mutex_lock(&philo->args->forks_mutexes[philo->r_frk]);
+			if (philo->args->forks[philo->r_frk] == 0)
+			{
+				ft_msg(philo, TAKING_FORK);
+				philo->args->forks[philo->r_frk] = 1;
+				i++;
+			}
+			pthread_mutex_unlock(&philo->args->forks_mutexes[philo->r_frk]);
+			pthread_mutex_lock(&philo->args->forks_mutexes[philo->l_frk]);
+			if (philo->args->forks[philo->l_frk] == 0)
+			{
+				ft_msg(philo, TAKING_FORK);
+				philo->args->forks[philo->l_frk] = 1;
+				i++;
+			}
+			pthread_mutex_unlock(&philo->args->forks_mutexes[philo->l_frk]);
+		}
 	}
 	return (0);
 }
@@ -211,8 +226,10 @@ int	eat(t_philo *philo)
 	(long long int)philo->num_of_meals >= philo->args->num_to_eat)
 	{
 		ft_msg(philo, OVER);
+		pthread_mutex_lock(&philo->args->forks_mutexes[philo->l_frk]);
 		philo->args->forks[philo->l_frk] = 0;
 		pthread_mutex_unlock(&philo->args->forks_mutexes[philo->l_frk]);
+		pthread_mutex_lock(&philo->args->forks_mutexes[philo->r_frk]);
 		philo->args->forks[philo->r_frk] = 0;
 		pthread_mutex_unlock(&philo->args->forks_mutexes[philo->r_frk]);
 		philo->args->finished++;

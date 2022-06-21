@@ -1,32 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_atoi.c                                          :+:      :+:    :+:   */
+/*   time_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: apila-va <apila-va@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dfurneau <dfurneau@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/20 12:35:41 by apila-va          #+#    #+#             */
-/*   Updated: 2022/06/20 12:35:46 by apila-va         ###   ########.fr       */
+/*   Created: 2022/06/20 11:53:33 by dfurneau          #+#    #+#             */
+/*   Updated: 2022/06/20 11:53:37 by dfurneau         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	ft_atoi(const char *str, long long int *num)
+long long int	get_time(void)
 {
-	int	i;
+	static struct timeval	tv;
 
+	gettimeofday(&tv, NULL);
+	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
+}
 
-	i = 0;
-	if (str[i] == '\0')
-		return (1);
-	*num = 0;
-	while (str[i] && str[i] >= '0' && str[i] <= '9')
-	{
-		*num = *num * 10 + (str[i] - '0');
-		i++;
-	}
-	if (str[i] != '\0')
-		return (1);
-	return (0);
+void	ft_usleep(long long int ms)
+{
+	long long int	times;
+
+	times = get_time();
+	while (get_time() - times < ms)
+		usleep(100);
 }

@@ -6,7 +6,7 @@
 /*   By: apila-va <apila-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:47:13 by apila-va          #+#    #+#             */
-/*   Updated: 2022/06/20 16:23:45 by apila-va         ###   ########.fr       */
+/*   Updated: 2022/06/20 19:02:09 by apila-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,12 +76,14 @@ typedef struct s_philo
 }				t_philo;
 
 int				ft_isdigit(int val);
-int				ft_atoi(const char *str, long long int *num);
-int				ft_err(int	error);
+int				ft_atoi(const char *str);
+int				ft_err(int error);
 void			*routine(void *philo_t);
 void			ft_msg(t_philo *philo, int action);
-int				ft_log(int	error);
+int				ft_log(int error);
 long long int	get_time(void);
 void			ft_usleep(long long int ms);
 int				start(t_args *args);
+int				waitchildthreads_and_destorymutex(t_args *args);
+int				release_forks(t_philo *philo);
 #endif

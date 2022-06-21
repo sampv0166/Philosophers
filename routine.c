@@ -6,7 +6,7 @@
 /*   By: apila-va <apila-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:47:31 by apila-va          #+#    #+#             */
-/*   Updated: 2022/06/20 14:57:05 by apila-va         ###   ########.fr       */
+/*   Updated: 2022/06/20 19:31:39 by apila-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,31 +130,35 @@ int	start(t_args *args)
 	return (0);
 }
 
+int	even_philos_taking_fork(t_philo *philo)
+{
+	pthread_mutex_lock(&philo->args->forks_mutexes[philo->l_frk]);
+	ft_msg(philo, TAKING_FORK);
+	philo->args->forks[philo->l_frk] = 1;
+	if (philo->args->num_philo > 1)
+	{
+		pthread_mutex_lock(&philo->args->forks_mutexes[philo->r_frk]);
+		ft_msg(philo, TAKING_FORK);
+		philo->args->forks[philo->r_frk] = 1;
+	}
+	else
+	{
+		while (1)
+		{
+			pthread_mutex_lock(&philo->args->die_mutex);
+			if (philo->args->dead)
+				break ;
+			pthread_mutex_unlock(&philo->args->die_mutex);
+		}
+		return (1);
+	}
+	return (0);
+}
+
 int	take_forks(t_philo *philo)
 {
 	if (philo->pos % 2 == 0)
-	{
-		pthread_mutex_lock(&philo->args->forks_mutexes[philo->l_frk]);
-		ft_msg(philo, TAKING_FORK);
-		philo->args->forks[philo->l_frk] = 1;
-		if (philo->args->num_philo > 1)
-		{
-			pthread_mutex_lock(&philo->args->forks_mutexes[philo->r_frk]);
-			ft_msg(philo, TAKING_FORK);
-			philo->args->forks[philo->r_frk] = 1;
-		}
-		else
-		{
-			while (1)
-			{
-				pthread_mutex_lock(&philo->args->die_mutex);
-				if (philo->args->dead)
-					break ;
-				pthread_mutex_unlock(&philo->args->die_mutex);
-			}
-			return (1);
-		}
-	}
+		return (even_philos_taking_fork(philo));
 	else
 	{
 		pthread_mutex_lock(&philo->args->forks_mutexes[philo->r_frk]);
@@ -195,27 +199,13 @@ int	eat(t_philo *philo)
 	return (0);
 }
 
-int	release_forks(t_philo *philo)
-{
-	philo->args->forks[philo->r_frk] = 0;
-	pthread_mutex_unlock(&philo->args->forks_mutexes[philo->r_frk]);
-	philo->args->forks[philo->l_frk] = 0;
-	pthread_mutex_unlock(&philo->args->forks_mutexes[philo->l_frk]);
-	ft_msg(philo, SLEEPING);
-	ft_usleep(philo->args->sleep_time);
-	ft_msg(philo, THINKING);
-	return (0);
-}
-
 void	*routine(void *philo_t)
 {
 	t_philo	*philo;
 
 	philo = (t_philo *)philo_t;
 	if (philo->pos % 2 == 0 && philo->args->num_philo != 1)
-	{
 		ft_usleep(philo->args->eat_time);
-	}
 	while (1)
 	{
 		pthread_mutex_lock(&philo->args->die_mutex);

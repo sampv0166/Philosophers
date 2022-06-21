@@ -6,7 +6,7 @@
 /*   By: apila-va <apila-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:47:02 by apila-va          #+#    #+#             */
-/*   Updated: 2022/06/20 16:11:08 by apila-va         ###   ########.fr       */
+/*   Updated: 2022/06/20 17:53:37 by apila-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,14 +39,19 @@ int	init_args(t_args *args, int argc, char **argv)
 		return (ft_err(TOO_MANY_ARGUMENTS));
 	if (argc < 5)
 		return (ft_err(NOT_ENOUGH_ARGUMENTS));
-	if (ft_atoi(argv[1], &args->num_philo) || args->num_philo == 0
-		|| ft_atoi(argv[2], &args->death_time) || args->death_time == 0
-		|| ft_atoi(argv[3], &args->eat_time) || args->eat_time == 0
-		|| ft_atoi(argv[4], &args->sleep_time) || args->sleep_time == 0)
+	args->num_philo = ft_atoi(argv[1]);
+	args->death_time = ft_atoi(argv[2]);
+	args->eat_time = ft_atoi(argv[3]);
+	args->sleep_time = ft_atoi(argv[4]);
+	if (args->num_philo <= 0 || args->death_time <= 0 || args->eat_time <= 0\
+		 || args->sleep_time <= 0)
 		return (ft_err(WRONG_ARGUMENT));
-	if (argc == 6 && (ft_atoi(argv[5], &args->num_to_eat)
-			|| args->num_to_eat == 0))
-		return (ft_err(WRONG_ARGUMENT));
+	if (argc == 6)
+	{
+		args->num_to_eat = ft_atoi(argv[5]);
+		if (args->num_to_eat <= 0)
+			return (ft_err(WRONG_ARGUMENT));
+	}
 	else if (argc == 5)
 		args->num_to_eat = -1;
 	args->finished = 0;
@@ -92,29 +97,17 @@ int	init_philos(t_args *args)
     *arg 5 :[number_of_times_each_philosopher_must_eat]
 */
 
-int	waitchildthreads_and_destorymutex(t_args *args)
-{
-	pthread_mutex_destroy(&args->wr_mutex);
-	free(args->forks_mutexes);
-	free(args->philos);
-	free(args->forks);
-	free(args->tids);
-	return (0);
-}
-
 void	monitor(t_args *args)
 {
 	long long int	i;
 	long long int	time_left;
 	int				eating;
 
-	i = 0;
 	while (1)
 	{
 		i = 0;
 		while (i < args->num_philo)
 		{
-			eating = 0;
 			pthread_mutex_lock(&args->ls_meal_mutex);
 			time_left = args->philos[i].lst_meal;
 			pthread_mutex_unlock(&args->ls_meal_mutex);

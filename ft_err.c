@@ -6,7 +6,7 @@
 /*   By: apila-va <apila-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:46:42 by apila-va          #+#    #+#             */
-/*   Updated: 2022/06/20 13:54:09 by apila-va         ###   ########.fr       */
+/*   Updated: 2022/06/20 17:51:21 by apila-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,4 +25,14 @@ int	ft_err(int error)
 	else if (error == PTHREAD_ERROR)
 		printf("Error: PThread error.\n");
 	return (1);
+}
+
+int	waitchildthreads_and_destorymutex(t_args *args)
+{
+	pthread_mutex_destroy(&args->wr_mutex);
+	free(args->forks_mutexes);
+	free(args->philos);
+	free(args->forks);
+	free(args->tids);
+	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: apila-va <apila-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:47:02 by apila-va          #+#    #+#             */
-/*   Updated: 2022/06/28 16:30:34 by apila-va         ###   ########.fr       */
+/*   Updated: 2022/06/28 19:18:00 by apila-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,7 +131,6 @@ void	monitor(t_args *args)
 			if (get_time() - time_left > args->death_time && !eating)
 			{	
 				ft_msg(&args->philos[i], DIED);
-				pthread_mutex_unlock(&args->wr_mutex);
 				return ;
 			}
 			if ((long long int)args->finished == args->num_philo)
@@ -155,6 +154,11 @@ int	main(int argc, char **argv)
 	while (i < args.num_philo)
 	{
 		pthread_join(args.tids[i], NULL);
+		i++;
+	}
+	i = 0;
+	while (i < args.num_philo)
+	{
 		pthread_mutex_destroy(&args.forks_mutexes[i]);
 		i++;
 	}

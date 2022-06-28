@@ -6,7 +6,7 @@
 /*   By: apila-va <apila-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:47:21 by apila-va          #+#    #+#             */
-/*   Updated: 2022/06/28 14:42:40 by apila-va         ###   ########.fr       */
+/*   Updated: 2022/06/28 19:18:08 by apila-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ void	ft_msg(t_philo *philo, int action)
 	else if (action == DIED)
 	{
 		set_philo_died(philo);
+		pthread_mutex_unlock(&philo->args->wr_mutex);
 		return ;
 	}
 	pthread_mutex_unlock(&philo->args->wr_mutex);

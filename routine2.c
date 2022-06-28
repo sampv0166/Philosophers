@@ -6,7 +6,7 @@
 /*   By: apila-va <apila-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/28 14:56:33 by apila-va          #+#    #+#             */
-/*   Updated: 2022/06/28 16:34:00 by apila-va         ###   ########.fr       */
+/*   Updated: 2022/06/28 18:55:15 by apila-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,10 @@ int	handle_one_philo(t_philo *philo)
 	{
 		pthread_mutex_lock(&philo->args->die_mutex);
 		if (philo->args->dead)
+		{
+			pthread_mutex_unlock(&philo->args->die_mutex);
 			break ;
+		}
 		pthread_mutex_unlock(&philo->args->die_mutex);
 	}
 	return (1);

@@ -6,7 +6,7 @@
 /*   By: apila-va <apila-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:47:31 by apila-va          #+#    #+#             */
-/*   Updated: 2022/06/21 18:55:55 by apila-va         ###   ########.fr       */
+/*   Updated: 2022/06/28 15:02:37 by apila-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,47 @@
 // {
 // }
 
+// int	even_philos_taking_fork(t_philo *philo)
+// {
+// 	int	i;
+
+// 	i = 0;
+// 	while (i < 2)
+// 	{
+// 		pthread_mutex_lock(&philo->args->forks_mutexes[philo->l_frk]);
+// 		if (philo->args->forks[philo->l_frk] == 0)
+// 		{
+// 			ft_msg(philo, TAKING_FORK);
+// 			philo->args->forks[philo->l_frk] = 1;
+// 			i++;
+// 		}
+// 		pthread_mutex_unlock(&philo->args->forks_mutexes[philo->l_frk]);
+// 		if (philo->args->num_philo > 1)
+// 		{
+// 			pthread_mutex_lock(&philo->args->forks_mutexes[philo->r_frk]);
+// 			if (philo->args->forks[philo->r_frk] == 0)
+// 			{
+// 				ft_msg(philo, TAKING_FORK);
+// 				philo->args->forks[philo->r_frk] = 1;
+// 				i++;	
+// 			}
+// 			pthread_mutex_unlock(&philo->args->forks_mutexes[philo->r_frk]);
+// 		}
+// 		else
+// 		{
+// 			while (1)
+// 			{
+// 				pthread_mutex_lock(&philo->args->die_mutex);
+// 				if (philo->args->dead)
+// 					break ;
+// 				pthread_mutex_unlock(&philo->args->die_mutex);
+// 			}
+// 			return (1);
+// 		}	
+// 	}
+// 	return (0);
+// }
+
 int	start(t_args *args)
 {
 	long long int		i;
@@ -124,88 +165,50 @@ int	start(t_args *args)
 		args->philos[i].lst_meal = get_time();
 		if (pthread_create(&args->tids[i], NULL, &routine, \
 		(void *)&args->philos[i]))
-			return (ft_log(PTHREAD_ERROR));
+			return (ft_err(PTHREAD_ERROR));
 		i++;
-	}
-	return (0);
-}
-
-int	even_philos_taking_fork(t_philo *philo)
-{
-	// while (1)
-	// {
-	// 	if (philo->l_frk == 0 && philo->r_frk == 0)
-	// 		break ;
-	// }
-	int i;
-
-	i = 0;
-	while (i < 2)
-	{
-		pthread_mutex_lock(&philo->args->forks_mutexes[philo->l_frk]);
-		if (philo->args->forks[philo->l_frk] == 0)
-		{
-			ft_msg(philo, TAKING_FORK);
-			philo->args->forks[philo->l_frk] = 1;
-			i++;
-		}
-		pthread_mutex_unlock(&philo->args->forks_mutexes[philo->l_frk]);
-		if (philo->args->num_philo > 1)
-		{
-			pthread_mutex_lock(&philo->args->forks_mutexes[philo->r_frk]);
-			if (philo->args->forks[philo->r_frk] == 0)
-			{
-				ft_msg(philo, TAKING_FORK);
-				philo->args->forks[philo->r_frk] = 1;
-				i++;	
-			}
-			pthread_mutex_unlock(&philo->args->forks_mutexes[philo->r_frk]);
-		}
-		else
-		{
-			while (1)
-			{
-				pthread_mutex_lock(&philo->args->die_mutex);
-				if (philo->args->dead)
-					break ;
-				pthread_mutex_unlock(&philo->args->die_mutex);
-			}
-			return (1);
-		}	
 	}
 	return (0);
 }
 
 int	take_forks(t_philo *philo)
 {
-	int i;
-	
+	int	i;
+
 	i = 0;
-	if (philo->pos % 2 == 0)
-		return (even_philos_taking_fork(philo));
-	else
+	if (philo->args->num_philo <= 1)
+		return (handle_one_philo(philo));
+	while (i < 2)
 	{
-		while (i < 2)
+		pthread_mutex_lock(&philo->args->forks_mutexes[philo->r_frk]);
+		if (philo->args->forks[philo->r_frk] == 0)
 		{
-			pthread_mutex_lock(&philo->args->forks_mutexes[philo->r_frk]);
-			if (philo->args->forks[philo->r_frk] == 0)
-			{
-				ft_msg(philo, TAKING_FORK);
-				philo->args->forks[philo->r_frk] = 1;
-				i++;
-			}
-			pthread_mutex_unlock(&philo->args->forks_mutexes[philo->r_frk]);
-			pthread_mutex_lock(&philo->args->forks_mutexes[philo->l_frk]);
-			if (philo->args->forks[philo->l_frk] == 0)
-			{
-				ft_msg(philo, TAKING_FORK);
-				philo->args->forks[philo->l_frk] = 1;
-				i++;
-			}
-			pthread_mutex_unlock(&philo->args->forks_mutexes[philo->l_frk]);
+			set_right_fork_status(philo);
+			i++;
 		}
+		pthread_mutex_unlock(&philo->args->forks_mutexes[philo->r_frk]);
+		pthread_mutex_lock(&philo->args->forks_mutexes[philo->l_frk]);
+		if (philo->args->forks[philo->l_frk] == 0)
+		{
+			set_left_fork_status(philo);
+			i++;
+		}
+		pthread_mutex_unlock(&philo->args->forks_mutexes[philo->l_frk]);
 	}
 	return (0);
+}
+
+int	philo_finished_eating(t_philo *philo)
+{
+	ft_msg(philo, OVER);
+	pthread_mutex_lock(&philo->args->forks_mutexes[philo->l_frk]);
+	philo->args->forks[philo->l_frk] = 0;
+	pthread_mutex_unlock(&philo->args->forks_mutexes[philo->l_frk]);
+	pthread_mutex_lock(&philo->args->forks_mutexes[philo->r_frk]);
+	philo->args->forks[philo->r_frk] = 0;
+	pthread_mutex_unlock(&philo->args->forks_mutexes[philo->r_frk]);
+	philo->args->finished++;
+	return (1);
 }
 
 int	eat(t_philo *philo)
@@ -224,17 +227,7 @@ int	eat(t_philo *philo)
 	philo->num_of_meals += 1;
 	if (philo->args->num_to_eat > 0 && \
 	(long long int)philo->num_of_meals >= philo->args->num_to_eat)
-	{
-		ft_msg(philo, OVER);
-		pthread_mutex_lock(&philo->args->forks_mutexes[philo->l_frk]);
-		philo->args->forks[philo->l_frk] = 0;
-		pthread_mutex_unlock(&philo->args->forks_mutexes[philo->l_frk]);
-		pthread_mutex_lock(&philo->args->forks_mutexes[philo->r_frk]);
-		philo->args->forks[philo->r_frk] = 0;
-		pthread_mutex_unlock(&philo->args->forks_mutexes[philo->r_frk]);
-		philo->args->finished++;
-		return (1);
-	}
+		return (philo_finished_eating(philo));
 	return (0);
 }
 

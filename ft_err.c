@@ -6,7 +6,7 @@
 /*   By: apila-va <apila-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:46:42 by apila-va          #+#    #+#             */
-/*   Updated: 2022/06/20 17:51:21 by apila-va         ###   ########.fr       */
+/*   Updated: 2022/06/28 14:25:52 by apila-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	ft_err(int error)
 	else if (error == WRONG_ARGUMENT)
 		printf("Error: Wrong argument.\n");
 	else if (error == TOO_MANY_ARGUMENTS)
-		printf("Error: Wrong syntax.\n");
+		printf("Error: Too Many arguments.\n");
 	else if (error == MALLOC_ERROR)
 		printf("Error: Malloc error.\n");
 	else if (error == PTHREAD_ERROR)
@@ -30,6 +30,9 @@ int	ft_err(int error)
 int	waitchildthreads_and_destorymutex(t_args *args)
 {
 	pthread_mutex_destroy(&args->wr_mutex);
+	pthread_mutex_destroy(&args->die_mutex);
+	pthread_mutex_destroy(&args->eating_mutex);
+	pthread_mutex_destroy(&args->ls_meal_mutex);
 	free(args->forks_mutexes);
 	free(args->philos);
 	free(args->forks);

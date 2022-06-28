@@ -6,7 +6,7 @@
 /*   By: apila-va <apila-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:47:02 by apila-va          #+#    #+#             */
-/*   Updated: 2022/06/21 15:28:01 by apila-va         ###   ########.fr       */
+/*   Updated: 2022/06/28 16:30:34 by apila-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	init_mutexes(t_args *args)
 	args->forks_mutexes = malloc(sizeof(pthread_mutex_t)
 			* args->num_philo);
 	if (!args->forks_mutexes)
-		return (ft_log(MALLOC_ERROR));
+		return (ft_err(MALLOC_ERROR));
 	i = 0;
 	while (i < args->num_philo)
 	{
@@ -43,8 +43,8 @@ int	init_args(t_args *args, int argc, char **argv)
 	args->death_time = ft_atoi(argv[2]);
 	args->eat_time = ft_atoi(argv[3]);
 	args->sleep_time = ft_atoi(argv[4]);
-	if (args->num_philo <= 0 || args->death_time <= 0 || args->eat_time <= 0\
-		 || args->sleep_time <= 0)
+	if (args->num_philo <= 0 || args->death_time <= 0 || args->eat_time <= 0 \
+		|| args->sleep_time <= 0)
 		return (ft_err(WRONG_ARGUMENT));
 	if (argc == 6)
 	{
@@ -60,6 +60,17 @@ int	init_args(t_args *args, int argc, char **argv)
 	return (0);
 }
 
+// 0 mod 5 = 0
+// 1 mod 5 = 1
+// 2 mod 5 = 2
+// 3 mod 5 = 3
+// 4 mod 5 = 4
+// 5 mod 5 = 0
+
+// if the number on the left handside of the mod operator 
+// is less than the number on the right side, the result will
+// be the number on the left handside
+// if both numbers are same, the result will be zero
 int	init_philos(t_args *args)
 {
 	long long int	i;
@@ -68,7 +79,7 @@ int	init_philos(t_args *args)
 	args->forks = malloc(sizeof(int) * args->num_philo);
 	args->tids = malloc(sizeof(pthread_t) * args->num_philo);
 	if (!args->philos || !args->forks || !args->tids)
-		return (ft_log(MALLOC_ERROR));
+		return (ft_err(MALLOC_ERROR));
 	i = 0;
 	while (i < args->num_philo)
 	{
@@ -79,10 +90,8 @@ int	init_philos(t_args *args)
 		args->philos[i].num_of_meals = 0;
 		args->philos[i].eating = 0;
 		args->philos[i].args = args;
-		args->philos[i].thinking = 0;
 		args->philos->lst_meal = 0;
 		args->forks[i] = 0;
-		args->philos[i].just_ate = 0;
 		i++;
 	}
 	return (0);
@@ -97,6 +106,16 @@ int	init_philos(t_args *args)
     *arg 5 :[number_of_times_each_philosopher_must_eat]
 */
 
+// this function monitos if an of the philos exceeded death time
+// it gets the current time and substracts the time philo had 
+//	their last meal 
+// if the resulting time is greater than the death time,it means 
+// they are gonna die
+// so i will set the death flag, so that any other philos wont be 
+//	able to print any msg
+// it the optinal argument is given it also checks if each philo
+// has finished eating
+
 void	monitor(t_args *args)
 {
 	long long int	i;
@@ -108,12 +127,7 @@ void	monitor(t_args *args)
 		i = 0;
 		while (i < args->num_philo)
 		{
-			pthread_mutex_lock(&args->ls_meal_mutex);
-			time_left = args->philos[i].lst_meal;
-			pthread_mutex_unlock(&args->ls_meal_mutex);
-			pthread_mutex_lock(&args->eating_mutex);
-			eating = args->philos[i].eating;
-			pthread_mutex_unlock(&args->eating_mutex);
+			set_timeleft_eating(args, &time_left, &eating, i);
 			if (get_time() - time_left > args->death_time && !eating)
 			{	
 				ft_msg(&args->philos[i], DIED);
@@ -127,13 +141,13 @@ void	monitor(t_args *args)
 	}
 }
 
-int	main (int argc, char **argv)
+int	main(int argc, char **argv)
 {
-	t_args	args;
+	t_args			args;
 	long long int	i;
 
 	if (init_args(&args, argc, argv) || init_philos(&args) || \
-	init_mutexes(&args))
+		init_mutexes(&args))
 		return (1);
 	start(&args);
 	monitor(&args);
@@ -141,6 +155,7 @@ int	main (int argc, char **argv)
 	while (i < args.num_philo)
 	{
 		pthread_join(args.tids[i], NULL);
+		pthread_mutex_destroy(&args.forks_mutexes[i]);
 		i++;
 	}
 	waitchildthreads_and_destorymutex(&args);
